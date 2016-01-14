@@ -72,6 +72,7 @@
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/control_state.h>
 #include <uORB/topics/vehicle_global_position.h>
+#include <uORB/topics/att_pos_mocap.h>
 
 #include <ecl/EKF/ekf.h>
 
@@ -126,6 +127,7 @@ private:
 	int		_gps_sub = -1;
 	int		_airspeed_sub = -1;
 	int		_params_sub = -1;
+	int 	_att_pos_mocap_sub = -1;
 
 	orb_advert_t _att_pub;
 	orb_advert_t _lpos_pub;
@@ -232,6 +234,7 @@ void Ekf2::task_main()
 	_gps_sub = orb_subscribe(ORB_ID(vehicle_gps_position));
 	_airspeed_sub = orb_subscribe(ORB_ID(airspeed));
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
+	_att_pos_mocap_sub = orb_subscribe(ORB_ID(att_pos_mocap));
 
 	px4_pollfd_struct_t fds[2] = {};
 	fds[0].fd = _sensors_sub;
@@ -267,10 +270,12 @@ void Ekf2::task_main()
 
 		bool gps_updated = false;
 		bool airspeed_updated = false;
+		bool att_pos_mocap_updated = false; // Added by me
 
 		sensor_combined_s sensors = {};
 		vehicle_gps_position_s gps = {};
 		airspeed_s airspeed = {};
+		att_pos_mocap_s att_pos_mocap = {}; // Added by me
 
 		orb_copy(ORB_ID(sensor_combined), _sensors_sub, &sensors);
 
@@ -286,6 +291,12 @@ void Ekf2::task_main()
 		if (airspeed_updated) {
 			orb_copy(ORB_ID(airspeed), _airspeed_sub, &airspeed);
 		}
+
+		orb_check(_att_pos_mocap_sub, &att_pos_mocap_updated); // Added by me
+
+		if (att_pos_mocap_updated) { // Added by me
+			orb_copy(ORB_ID(att_pos_mocap), _att_pos_mocap_sub, &att_pos_mocap) // Added by me
+		} // Added by me
 
 		hrt_abstime now = hrt_absolute_time();
 		// push imu data into estimator
@@ -322,6 +333,12 @@ void Ekf2::task_main()
 		if (airspeed_updated) {
 			_ekf->setAirspeedData(airspeed.timestamp, &airspeed.indicated_airspeed_m_s);
 		}
+
+		// read mocap data if available // Added by me
+		if (att_pos_mocap_updated) { // Added by me
+			_ekf->setMocapData(att_pos_mocap.timestamp_boot, att_pos_mocap.timestamp_computer, // Added by me
+					 &att_pos_mocap.q[0], att_pos_mocap.x, att_pos_mocap.y, att_pos_mocap.z); // Added by me
+		} // Added by me
 
 		// run the EKF update
 		_ekf->update();

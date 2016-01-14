@@ -23,23 +23,23 @@ set(config_module_list
 	drivers/l3gd20
 	drivers/hmc5883
 	drivers/ms5611
-	#drivers/mb12xx
+	drivers/mb12xx # Ultrasonic range finder
 	drivers/srf02
 	drivers/sf0x
 	drivers/ll40ls
 	drivers/trone
 	drivers/gps
 	drivers/pwm_out_sim
-	#drivers/hott
-	#drivers/hott/hott_telemetry
-	#drivers/hott/hott_sensors
+	# drivers/hott
+	# drivers/hott/hott_telemetry
+	# drivers/hott/hott_sensors
 	drivers/blinkm
 	drivers/airspeed
 	drivers/ets_airspeed
 	drivers/meas_airspeed
 	drivers/frsky_telemetry
 	modules/sensors
-	#drivers/mkblctrl
+	drivers/mkblctrl # Mikrokopter Bldc driver (i2c)
 	drivers/px4flow
 	drivers/oreoled
 	drivers/gimbal
@@ -57,7 +57,7 @@ set(config_module_list
 	systemcmds/pwm
 	systemcmds/esc_calib
 	systemcmds/reboot
-	#systemcmds/topic_listener
+	systemcmds/topic_listener
 	systemcmds/top
 	systemcmds/config
 	systemcmds/nshterm
@@ -80,19 +80,20 @@ set(config_module_list
 	#
 	# Too high RAM usage due to static allocations
 	# modules/attitude_estimator_ekf
-	modules/attitude_estimator_q
+	# modules/attitude_estimator_q
+	# modules/position_estimator_inav
 	modules/ekf_att_pos_estimator
-	modules/position_estimator_inav
+	modules/ekf2
 
 	#
 	# Vehicle Control
 	#
 	# modules/segway # XXX Needs GCC 4.7 fix
-	modules/fw_pos_control_l1
-	modules/fw_att_control
+	# modules/fw_pos_control_l1
+	# modules/fw_att_control
 	modules/mc_att_control
 	modules/mc_pos_control
-	modules/vtol_att_control
+	# modules/vtol_att_control
 
 	#
 	# Logging
@@ -133,35 +134,38 @@ set(config_module_list
 	#
 	# OBC challenge
 	#
-	#modules/bottle_drop
+	# modules/bottle_drop
 
 	#
 	# Rover apps
 	#
-	examples/rover_steering_control
+	# examples/rover_steering_control
 
 	#
 	# Demo apps
 	#
-	#examples/math_demo
+	# examples/math_demo
 	# Tutorial code from
 	# https://px4.io/dev/px4_simple_app
-	#examples/px4_simple_app
+	# examples/px4_simple_app
 
 	# Tutorial code from
 	# https://px4.io/dev/daemon
-	#examples/px4_daemon_app
+	# examples/px4_daemon_app
 
 	# Tutorial code from
 	# https://px4.io/dev/debug_values
-	#examples/px4_mavlink_debug
+	# examples/px4_mavlink_debug
 
 	# Tutorial code from
 	# https://px4.io/dev/example_fixedwing_control
-	#examples/fixedwing_control
+	# examples/fixedwing_control
 
 	# Hardware test
-	#examples/hwtest
+	# examples/hwtest
+
+	# Modules added in connection to DTU 3-weeks course Jan. 2016
+	# DTU/px4_simple_app
 )
 
 set(config_extra_builtin_cmds
