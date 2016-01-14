@@ -295,7 +295,7 @@ void Ekf2::task_main()
 		orb_check(_att_pos_mocap_sub, &att_pos_mocap_updated); // Added by me
 
 		if (att_pos_mocap_updated) { // Added by me
-			orb_copy(ORB_ID(att_pos_mocap), _att_pos_mocap_sub, &att_pos_mocap) // Added by me
+			orb_copy(ORB_ID(att_pos_mocap), _att_pos_mocap_sub, &att_pos_mocap); // Added by me
 		} // Added by me
 
 		hrt_abstime now = hrt_absolute_time();
@@ -336,8 +336,8 @@ void Ekf2::task_main()
 
 		// read mocap data if available // Added by me
 		if (att_pos_mocap_updated) { // Added by me
-			_ekf->setMocapData(att_pos_mocap.timestamp_boot, att_pos_mocap.timestamp_computer, // Added by me
-					 &att_pos_mocap.q[0], att_pos_mocap.x, att_pos_mocap.y, att_pos_mocap.z); // Added by me
+			//_ekf->setMocapData(att_pos_mocap.timestamp_boot, att_pos_mocap.timestamp_computer, // Added by me
+			//		 &att_pos_mocap.q[0], att_pos_mocap.x, att_pos_mocap.y, att_pos_mocap.z); // Added by me
 		} // Added by me
 
 		// run the EKF update
