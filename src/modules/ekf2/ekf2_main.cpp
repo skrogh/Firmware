@@ -219,6 +219,7 @@ void Ekf2::print()
 	_ekf->printStoredBaro();
 	_ekf->printStoredMag();
 	_ekf->printStoredIMU();
+	_ekf->printStoredMocap();
 }
 
 void Ekf2::print_status()
@@ -335,10 +336,19 @@ void Ekf2::task_main()
 		}
 
 		// read mocap data if available // Added by me
-		if (att_pos_mocap_updated) { // Added by me
-			//_ekf->setMocapData(att_pos_mocap.timestamp_boot, att_pos_mocap.timestamp_computer, // Added by me
-			//		 &att_pos_mocap.q[0], att_pos_mocap.x, att_pos_mocap.y, att_pos_mocap.z); // Added by me
-		} // Added by me
+		if (att_pos_mocap_updated) {
+			struct mocap_message mocap_msg = {};
+			mocap_msg.time_usec = att_pos_mocap.timestamp_computer;
+			mocap_msg.q[0] = att_pos_mocap.q[0];
+			mocap_msg.q[1] = att_pos_mocap.q[1];
+			mocap_msg.q[2] = att_pos_mocap.q[2];
+			mocap_msg.q[3] = att_pos_mocap.q[3];
+			mocap_msg.x = att_pos_mocap.x;
+			mocap_msg.y = att_pos_mocap.y;
+			mocap_msg.z = att_pos_mocap.z;
+			
+			_ekf->setMocapData(att_pos_mocap.timestamp_computer, &mocap_msg);
+		}
 
 		// run the EKF update
 		_ekf->update();
@@ -348,8 +358,12 @@ void Ekf2::task_main()
 		att.timestamp = hrt_absolute_time();
 
 		_ekf->copy_quaternion(att.q);
-		matrix::Quaternion<float> q(att.q[0], att.q[1], att.q[2], att.q[3]);
-		matrix::Euler<float> euler(q);
+		//matrix::Quaternion<float> q(att.q[0], att.q[1], att.q[2], att.q[3]);
+		//matrix::Euler<float> euler(q);
+		math::Quaternion q(att.q[0], att.q[1], att.q[2], att.q[3]);
+		math::Matrix<3, 3> R = q.to_dcm();
+		math::Vector<3> euler = R.to_euler();
+
 		att.roll = euler(0);
 		att.pitch = euler(1);
 		att.yaw = euler(2);
@@ -569,7 +583,7 @@ int ekf2_main(int argc, char *argv[])
 
 	if (!strcmp(argv[1], "print")) {
 		if (ekf2::instance != nullptr) {
-
+			ekf2::instance->print();
 			return 0;
 		}
 
