@@ -82,6 +82,16 @@ PARAM_DEFINE_FLOAT(EKF2_GPS_DELAY, 200);
 PARAM_DEFINE_FLOAT(EKF2_ASP_DELAY, 200);
 
 /**
+ * Motion capture measurement delay
+ *
+ * @group EKF2
+ * @min 0
+ * @max 500
+ * @unit ms
+ */
+PARAM_DEFINE_FLOAT(EKF2_MOCAP_DELAY, 300);
+
+/**
  * Required EPH to use GPS.
  *
  * @group EKF2
@@ -100,6 +110,16 @@ PARAM_DEFINE_FLOAT(EKF2_REQ_EPH, 10);
  * @unit m
  */
 PARAM_DEFINE_FLOAT(EKF2_REQ_EPV, 20);
+
+/**
+ * Use motion capture data in data fusion
+ *
+ * @group EKF2
+ * @min 0
+ * @max 1
+ * @unit m
+ */
+PARAM_DEFINE_INT32(EKF2_USE_MOCAP, 0);
 
 /**
  * Gyro noise.
@@ -224,3 +244,63 @@ PARAM_DEFINE_FLOAT(EKF2_MAG_DECL, 0);
  * @group EKF2
  */
 PARAM_DEFINE_FLOAT(EKF2_H_INOV_GATE, 0.5f);
+
+/**
+ * Measurement noise for motion capture x
+ *
+ * @group EKF2
+ * @min 0.0001
+ * @max 1
+ * @unit
+ */
+PARAM_DEFINE_FLOAT(EKF2_MO_X_NOISE, 0.01f);
+
+/**
+ * Measurement noise for motion capture y
+ *
+ * @group EKF2
+ * @min 0.0001
+ * @max 1
+ * @unit
+ */
+PARAM_DEFINE_FLOAT(EKF2_MO_Y_NOISE, 0.01f);
+
+/**
+ * Measurement noise for motion capture z
+ *
+ * @group EKF2
+ * @min 0.0001
+ * @max 1
+ * @unit
+ */
+PARAM_DEFINE_FLOAT(EKF2_MO_Z_NOISE, 0.01f);
+
+/**
+ * Measurement noise for motion capture roll
+ *
+ * @group EKF2
+ * @min 0.0001
+ * @max 1
+ * @unit
+ */
+PARAM_DEFINE_FLOAT(EKF2_MO_R_NOISE, 0.1f);
+
+/**
+ * Measurement noise for motion capture pitch
+ *
+ * @group EKF2
+ * @min 0.0001
+ * @max 1
+ * @unit
+ */
+PARAM_DEFINE_FLOAT(EKF2_MO_P_NOISE, 0.1f);
+
+/**
+ * Measurement noise for motion capture heading
+ *
+ * @group EKF2
+ * @min 0.0001
+ * @max 1
+ * @unit
+ */
+PARAM_DEFINE_FLOAT(EKF2_MO_H_NOISE, 0.1f);

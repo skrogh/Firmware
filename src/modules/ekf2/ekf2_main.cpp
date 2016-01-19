@@ -143,6 +143,7 @@ private:
 	control::BlockParamFloat *_baro_delay_ms;
 	control::BlockParamFloat *_gps_delay_ms;
 	control::BlockParamFloat *_airspeed_delay_ms;
+	control::BlockParamFloat *_mocap_delay_ms;
 	control::BlockParamFloat 	*_requiredEph;
 	control::BlockParamFloat 	*_requiredEpv;
 
@@ -156,6 +157,8 @@ private:
 	control::BlockParamFloat *_mag_p_noise;
 	control::BlockParamFloat *_wind_vel_p_noise;
 
+	control::BlockParamInt *_use_mocap;
+
 	control::BlockParamFloat *_gps_vel_noise;
 	control::BlockParamFloat *_gps_pos_noise;
 	control::BlockParamFloat *_baro_noise;
@@ -163,6 +166,12 @@ private:
 	control::BlockParamFloat *_mag_heading_noise;	// measurement noise used for simple heading fusion
 	control::BlockParamFloat *_mag_declination_deg;	// magnetic declination in degrees
 	control::BlockParamFloat *_heading_innov_gate;	// innovation gate for heading innovation test
+	control::BlockParamFloat *_mocap_x_noise;		// motion capture x noise
+	control::BlockParamFloat *_mocap_y_noise;		// motion capture y noise
+	control::BlockParamFloat *_mocap_z_noise;		// motion capture z noise
+	control::BlockParamFloat *_mocap_r_noise;		// motion capture roll noise
+	control::BlockParamFloat *_mocap_p_noise;		// motion capture pich noise
+	control::BlockParamFloat *_mocap_h_noise;		// motion capture yaw noise
 
 	EstimatorBase *_ekf;
 
@@ -187,8 +196,10 @@ Ekf2::Ekf2():
 	_baro_delay_ms = new control::BlockParamFloat(this, "EKF2_BARO_DELAY", false, &params->baro_delay_ms);
 	_gps_delay_ms = new control::BlockParamFloat(this, "EKF2_GPS_DELAY", false, &params->gps_delay_ms);
 	_airspeed_delay_ms = new control::BlockParamFloat(this, "EKF2_ASP_DELAY", false, &params->airspeed_delay_ms);
+	_mocap_delay_ms = new control::BlockParamFloat(this, "EKF2_MOCAP_DELAY", false, &params->mocap_delay_ms);
 	_requiredEph = new control::BlockParamFloat(this, "EKF2_REQ_EPH", false, &params->requiredEph);
 	_requiredEpv = new control::BlockParamFloat(this, "EKF2_REQ_EPV", false, &params->requiredEpv);
+	_use_mocap = new control::BlockParamInt(this, "EKF2_USE_MOCAP", false, &params->use_mocap);
 
 	_gyro_noise = new control::BlockParamFloat(this, "EKF2_G_NOISE", false, &params->gyro_noise);
 	_accel_noise = new control::BlockParamFloat(this, "EKF2_ACC_NOISE", false, &params->accel_noise);
@@ -206,6 +217,13 @@ Ekf2::Ekf2():
 	_mag_heading_noise = new control::BlockParamFloat(this, "EKF2_HEAD_NOISE", false, &params->mag_heading_noise);
 	_mag_declination_deg = new control::BlockParamFloat(this, "EKF2_MAG_DECL", false, &params->mag_declination_deg);
 	_heading_innov_gate = new control::BlockParamFloat(this, "EKF2_H_INOV_GATE", false, &params->heading_innov_gate);
+
+	_mocap_x_noise = new control::BlockParamFloat(this, "EKF2_MO_X_NOISE", false, &params->mocap_x_noise);
+	_mocap_y_noise = new control::BlockParamFloat(this, "EKF2_MO_Y_NOISE", false, &params->mocap_y_noise);
+	_mocap_z_noise = new control::BlockParamFloat(this, "EKF2_MO_Z_NOISE", false, &params->mocap_z_noise);
+	_mocap_r_noise = new control::BlockParamFloat(this, "EKF2_MO_R_NOISE", false, &params->mocap_r_noise);
+	_mocap_p_noise = new control::BlockParamFloat(this, "EKF2_MO_P_NOISE", false, &params->mocap_p_noise);
+	_mocap_h_noise = new control::BlockParamFloat(this, "EKF2_MO_H_NOISE", false, &params->mocap_h_noise);
 }
 
 Ekf2::~Ekf2()
@@ -436,6 +454,22 @@ void Ekf2::task_main()
 		ctrl_state.q[2] = q(2);
 		ctrl_state.q[3] = q(3);
 
+		// Set position and velocity variance
+		_ekf->copy_velocity_var(ctrl_state.vel_variance);
+		_ekf->copy_position_var(ctrl_state.pos_variance);
+
+		// Position in NED frame (m)
+		ctrl_state.x_pos = pos[0];
+		ctrl_state.y_pos = pos[1];
+		ctrl_state.z_pos = pos[2];
+
+		// Velocity in NED frame (m/s)
+		_ekf->copy_velocity(vel);
+		ctrl_state.x_vel = vel[0];
+		ctrl_state.y_vel = vel[1];
+		ctrl_state.z_vel = vel[2];
+
+
 		// publish control state data
 		if (_control_state_pub == nullptr) {
 			_control_state_pub = orb_advertise(ORB_ID(control_state), &ctrl_state);
@@ -522,7 +556,7 @@ int Ekf2::start()
 	_control_task = px4_task_spawn_cmd("ekf2",
 					   SCHED_DEFAULT,
 					   SCHED_PRIORITY_MAX - 5,
-					   9000,
+					   10000,//9000,
 					   (px4_main_t)&Ekf2::task_main_trampoline,
 					   nullptr);
 
