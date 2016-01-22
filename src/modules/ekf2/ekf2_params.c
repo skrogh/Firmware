@@ -122,6 +122,17 @@ PARAM_DEFINE_FLOAT(EKF2_REQ_EPV, 20);
 PARAM_DEFINE_INT32(EKF2_USE_MOCAP, 0);
 
 /**
+ * Use predictor to hide latency from delayed time horizon EKF.
+ * turning this off is usefull, when tuning delays of different sensors
+ *
+ * @group EKF2
+ * @min 0
+ * @max 1
+ * @unit m
+ */
+PARAM_DEFINE_INT32(EKF2_USE_PREDICT, 1);
+
+/**
  * Gyro noise.
  *
  * @group EKF2

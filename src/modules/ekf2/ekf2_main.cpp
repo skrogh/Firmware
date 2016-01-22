@@ -68,6 +68,7 @@
 #include <uORB/topics/sensor_combined.h>
 #include <uORB/topics/vehicle_gps_position.h>
 #include <uORB/topics/airspeed.h>
+ #include <uORB/topics/att_pos_mocap.h> // Added by me
 #include <uORB/topics/vehicle_attitude.h>
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/control_state.h>
@@ -158,6 +159,7 @@ private:
 	control::BlockParamFloat *_wind_vel_p_noise;
 
 	control::BlockParamInt *_use_mocap;
+	control::BlockParamInt *_use_predict;
 
 	control::BlockParamFloat *_gps_vel_noise;
 	control::BlockParamFloat *_gps_pos_noise;
@@ -200,6 +202,7 @@ Ekf2::Ekf2():
 	_requiredEph = new control::BlockParamFloat(this, "EKF2_REQ_EPH", false, &params->requiredEph);
 	_requiredEpv = new control::BlockParamFloat(this, "EKF2_REQ_EPV", false, &params->requiredEpv);
 	_use_mocap = new control::BlockParamInt(this, "EKF2_USE_MOCAP", false, &params->use_mocap);
+	_use_predict = new control::BlockParamInt(this, "EKF2_USE_PREDICT", false, &params->use_predict);
 
 	_gyro_noise = new control::BlockParamFloat(this, "EKF2_G_NOISE", false, &params->gyro_noise);
 	_accel_noise = new control::BlockParamFloat(this, "EKF2_ACC_NOISE", false, &params->accel_noise);
